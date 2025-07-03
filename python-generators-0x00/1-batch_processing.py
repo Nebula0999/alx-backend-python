@@ -33,6 +33,8 @@ def batch_processing(batch_size):
         for user in filtered:  # 3rd loop
             yield user
 
+    return 
+
 
 if __name__ == "__main__":
     for user in batch_processing(batch_size=3):
