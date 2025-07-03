@@ -16,7 +16,10 @@ def paginate_users(page_size, offset):
         "SELECT * FROM user_data ORDER BY user_id LIMIT %s OFFSET %s",
         (page_size, offset)
     )
+    query = "SELECT * FROM user_data LIMIT %s OFFSET %s"
+    cursor.execute(query, (page_size, offset))
     result = cursor.fetchall()
+
 
     cursor.close()
     connection.close()
