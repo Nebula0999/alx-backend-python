@@ -33,3 +33,11 @@ class ExecuteQuery:
             else:
                 self.connection.commit()
             self.connection.close()
+
+if __name__ == "__main__":
+    query = "SELECT * FROM users WHERE age > %s"
+    params = (25,)
+
+    with ExecuteQuery(query, params) as results:
+        for row in results:
+            print(row)
