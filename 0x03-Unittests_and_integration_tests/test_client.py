@@ -90,7 +90,7 @@ class TestGithubOrgClient(unittest.TestCase):
         """Integration test for GithubOrgClient.public_repos"""
         @classmethod
         def setUpClass(cls):
-            """Start patcher for requests.get and configure fixture-based side effects"""
+            """Start patcher and configure fixture-based side effects"""
             cls.get_patcher = patch("requests.get")
             mock_get = cls.get_patcher.start()
             # Repeat mocks to match the number of HTTP requests in your tests
