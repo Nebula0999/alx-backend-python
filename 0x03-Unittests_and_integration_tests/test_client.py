@@ -4,12 +4,21 @@
 import unittest
 from unittest.mock import patch, PropertyMock, Mock
 from utils import get_json
-from parameterized import parameterized, parameterized_class
+from parameterized import parameterized
+from parameterized import parameterized_class
 from utils import access_nested_map
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 
+@parameterized_class([
+    {
+        "org_payload": org_payload,
+        "repos_payload": repos_payload,
+        "expected_repos": expected_repos,
+        "apache2_repos": apache2_repos,
+    }
+    ])
 class TestGithubOrgClient(unittest.TestCase):
     """Test case for GithubOrgClient methods"""
 
@@ -75,14 +84,6 @@ class TestGithubOrgClient(unittest.TestCase):
         """Test that has_license returns the correct boolean"""
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
-    @parameterized_class([
-    {
-        "org_payload": org_payload,
-        "repos_payload": repos_payload,
-        "expected_repos": expected_repos,
-        "apache2_repos": apache2_repos,
-    }
-    ])
     class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Integration test for GithubOrgClient.public_repos"""
 
