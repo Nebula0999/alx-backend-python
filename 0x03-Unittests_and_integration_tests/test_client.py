@@ -86,17 +86,13 @@ class TestGithubOrgClient(unittest.TestCase):
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
-
     class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Integration test for GithubOrgClient.public_repos"""
-
         @classmethod
         def setUpClass(cls):
             """Start patcher for requests.get and configure fixture-based side effects"""
             cls.get_patcher = patch("requests.get")
-
             mock_get = cls.get_patcher.start()
-
             # Repeat mocks to match the number of HTTP requests in your tests
             mock_get.side_effect = [
                 Mock(**{"json.return_value": cls.org_payload}),
