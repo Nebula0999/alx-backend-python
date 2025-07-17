@@ -117,6 +117,17 @@ class TestGithubOrgClient(unittest.TestCase):
             client.public_repos(license="apache-2.0"),
             self.apache2_repos
         )
+    def test_public_repos(self):
+        """Test public_repos returns all repo names from fixture"""
+        client = GithubOrgClient("test_org")
+        result = client.public_repos()
+        self.assertEqual(result, self.expected_repos)
+
+    def test_public_repos_with_license(self):
+        """Test public_repos filters repos by license 'apache-2.0'"""
+        client = GithubOrgClient("test_org")
+        result = client.public_repos(license="apache-2.0")
+        self.assertEqual(result, self.apache2_repos)
 
 
 if __name__ == '__main__':
