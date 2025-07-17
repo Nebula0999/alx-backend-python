@@ -76,7 +76,7 @@ class TestGithubOrgClient(unittest.TestCase):
             self.assertEqual(result, ["repo1", "repo2", "repo3"])
             mock_get_json.assert_called_once_with(test_url)
             mock_url.assert_called_once()
-    
+
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False),
@@ -85,52 +85,46 @@ class TestGithubOrgClient(unittest.TestCase):
         """Test that has_license returns the correct boolean"""
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
+
+
     class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Integration test for GithubOrgClient.public_repos"""
 
-    @classmethod
-    def setUpClass(cls):
-        """Start patcher for requests.get and configure fixture-based side effects"""
-        cls.get_patcher = patch("requests.get")
+        @classmethod
+        def setUpClass(cls):
+            """Start patcher for requests.get and configure fixture-based side effects"""
+            cls.get_patcher = patch("requests.get")
 
-        mock_get = cls.get_patcher.start()
+            mock_get = cls.get_patcher.start()
 
-        # Repeat mocks to match the number of HTTP requests in your tests
-        mock_get.side_effect = [
-            Mock(**{"json.return_value": cls.org_payload}),
-            Mock(**{"json.return_value": cls.repos_payload}),
-            Mock(**{"json.return_value": cls.org_payload}),
-            Mock(**{"json.return_value": cls.repos_payload}),
-        ]
+            # Repeat mocks to match the number of HTTP requests in your tests
+            mock_get.side_effect = [
+                Mock(**{"json.return_value": cls.org_payload}),
+                Mock(**{"json.return_value": cls.repos_payload}),
+                Mock(**{"json.return_value": cls.org_payload}),
+                Mock(**{"json.return_value": cls.repos_payload}),
+            ]
 
-    @classmethod
-    def tearDownClass(cls):
-        """Stop patcher"""
-        cls.get_patcher.stop()
+        @classmethod
+        def tearDownClass(cls):
+            """Stop patcher"""
+            cls.get_patcher.stop()
 
-    def test_public_repos(self):
-        """Test public_repos returns full repo list from fixture"""
-        client = GithubOrgClient("test_org")
-        self.assertEqual(client.public_repos(), self.expected_repos)
+        def test_public_repos(self):
+            """Test public_repos returns full repo list from fixture"""
+            client = GithubOrgClient("test_org")
+            self.assertEqual(
+                client.public_repos(),
+                self.expected_repos
+            )
 
-    def test_public_repos_with_license(self):
-        """Test public_repos filters repos by license"""
-        client = GithubOrgClient("test_org")
-        self.assertEqual(
-            client.public_repos(license="apache-2.0"),
-            self.apache2_repos
-        )
-    def test_public_repos(self):
-        """Test public_repos returns all repo names from fixture"""
-        client = GithubOrgClient("test_org")
-        result = client.public_repos()
-        self.assertEqual(result, self.expected_repos)
-
-    def test_public_repos_with_license(self):
-        """Test public_repos filters repos by license 'apache-2.0'"""
-        client = GithubOrgClient("test_org")
-        result = client.public_repos(license="apache-2.0")
-        self.assertEqual(result, self.apache2_repos)
+        def test_public_repos_with_license(self):
+            """Test public_repos filters repos by license"""
+            client = GithubOrgClient("test_org")
+            self.assertEqual(
+                client.public_repos(license="apache-2.0"),
+                self.apache2_repos
+            )
 
 
 if __name__ == '__main__':
