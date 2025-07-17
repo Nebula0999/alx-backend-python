@@ -74,7 +74,7 @@ if __name__ == '__main__':
     unittest.main()'''
 
 class TestMemoize(unittest.TestCase):
-    """Test case for memoize decorator"""
+    
 
     def test_memoize(self):
         """Test that a_method is only called once when memoized"""
@@ -87,7 +87,8 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        with patch.object(TestClass, 'a_method', return_value=42) as mock_method:
+        with patch.object(TestClass, \
+                          'a_method', return_value=42) as mock_method:
             obj = TestClass()
             self.assertEqual(obj.a_property, 42)
             self.assertEqual(obj.a_property, 42)
