@@ -2,6 +2,7 @@
 """Unit tests for GithubOrgClient"""
 
 import unittest
+import requests
 from unittest.mock import patch, PropertyMock, Mock
 from utils import get_json
 from parameterized import parameterized
@@ -94,8 +95,10 @@ class TestGithubOrgClient(unittest.TestCase):
 
         mock_get = cls.get_patcher.start()
 
-        # Mock response.json() using side_effect depending on input URL
+        # Repeat mocks to match the number of HTTP requests in your tests
         mock_get.side_effect = [
+            Mock(**{"json.return_value": cls.org_payload}),
+            Mock(**{"json.return_value": cls.repos_payload}),
             Mock(**{"json.return_value": cls.org_payload}),
             Mock(**{"json.return_value": cls.repos_payload}),
         ]
