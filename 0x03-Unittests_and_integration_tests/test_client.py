@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Unit tests for GithubOrgClient.org method"""
+"""Unit tests for GithubOrgClient"""
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
+from utils import get_json
 from parameterized import parameterized
 from client import GithubOrgClient
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """Test case for GithubOrgClient.org method"""
+    """Test case for GithubOrgClient methods"""
 
     @parameterized.expand([
         ("google", {"login": "google", "id": 1}),
@@ -16,7 +17,7 @@ class TestGithubOrgClient(unittest.TestCase):
     ])
     @patch("client.get_json")
     def test_org(self, org_name, expected_payload, mock_get_json):
-        """Test that GithubOrgClient.org returns the correct organization data"""
+        """Test that .org returns expected data and calls get_json once"""
         mock_get_json.return_value = expected_payload
 
         client = GithubOrgClient(org_name)
@@ -28,30 +29,34 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(result, expected_payload)
 
     def test_public_repos_url(self):
-        """Test that _public_repos_url returns the correct URL from org"""
+        """Test that _public_repos_url returns the correct repos_url from org"""
+        test_url = "https://api.github.com/orgs/test/repos"
         with patch.object(
             GithubOrgClient,
             "org",
-            return_value={"repos_url": "https://api.github.com/orgs/test/repos"}
+            new_callable=PropertyMock,
+            return_value={"repos_url": test_url}
         ):
             client = GithubOrgClient("test")
             result = client._public_repos_url
-            self.assertEqual(result, "https://api.github.com/orgs/test/repos")
-    
+            self.assertEqual(result, test_url)
+
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
-        """Test that public_repos returns the expected list of repo names"""
+        """Test that public_repos returns correct list and calls get_json"""
         test_payload = [
             {"name": "repo1"},
             {"name": "repo2"},
             {"name": "repo3"}
         ]
         mock_get_json.return_value = test_payload
-
         test_url = "https://api.github.com/orgs/test/repos"
 
         with patch.object(
-            GithubOrgClient, "_public_repos_url", return_value=test_url
+            GithubOrgClient,
+            "_public_repos_url",
+            new_callable=PropertyMock,
+            return_value=test_url
         ) as mock_url:
             client = GithubOrgClient("test")
             result = client.public_repos()
