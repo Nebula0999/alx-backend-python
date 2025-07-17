@@ -1,28 +1,11 @@
 #!/usr/bin/env python3
-"""Unit tests for utils.access_nested_map"""
+"""Unit tests for utils module functions"""
 
 import unittest
-from parameterized import parameterized
-from utils import access_nested_map
-from utils import get_json, memoize
 from unittest.mock import patch, Mock
-import requests
+from parameterized import parameterized
+from utils import access_nested_map, get_json, memoize
 
-'''class TestAccessNestedMap(unittest.TestCase):
-    """Test case for access_nested_map function"""
-
-    @parameterized.expand([
-        ({"a": 1}, ("a",), 1),
-        ({"a": {"b": 2}}, ("a",), {"b": 2}),
-        ({"a": {"b": 2}}, ("a", "b"), 2),
-    ])
-    def test_access_nested_map(self, nested_map, path, expected):
-        """Test access_nested_map returns correct values"""
-        self.assertEqual(access_nested_map(nested_map, path), expected)
-
-
-if __name__ == '__main__':
-    unittest.main()
 
 class TestAccessNestedMap(unittest.TestCase):
     """Test case for access_nested_map function"""
@@ -47,9 +30,6 @@ class TestAccessNestedMap(unittest.TestCase):
         self.assertEqual(str(cm.exception), f"'{expected_key}'")
 
 
-if __name__ == '__main__':
-    unittest.main()
-
 class TestGetJson(unittest.TestCase):
     """Test case for get_json function"""
 
@@ -70,11 +50,8 @@ class TestGetJson(unittest.TestCase):
         self.assertEqual(result, test_payload)
 
 
-if __name__ == '__main__':
-    unittest.main()'''
-
 class TestMemoize(unittest.TestCase):
-    
+    """Test case for memoize decorator"""
 
     def test_memoize(self):
         """Test that a_method is only called once when memoized"""
@@ -87,9 +64,12 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        with patch.object(TestClass, \
-                          'a_method', return_value=42) as mock_method:
+        with patch.object(TestClass, 'a_method', return_value=42) as mock_method:
             obj = TestClass()
             self.assertEqual(obj.a_property, 42)
             self.assertEqual(obj.a_property, 42)
             mock_method.assert_called_once()
+
+
+if __name__ == '__main__':
+    unittest.main()
