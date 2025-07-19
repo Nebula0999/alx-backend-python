@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'messaging_app',  # Add your app here
     'parameterized',  # For parameterized tests
     'rest_framework',  # If using Django REST Framework
+    'rest_framework.permissions.IsAuthenticated',  # If using DRF permissions
+    'rest_framework.authentication.SessionAuthentication',  # If using DRF authentication
+    'DEFAULT_Authentication_CLASSES',  # If using DRF authentication classes
 ]
 
 MIDDLEWARE = [
