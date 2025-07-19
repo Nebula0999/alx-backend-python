@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'messaging_app',  # Add your app here
+    'messaging_app',
+    'chats',  # Add your app here
     'parameterized',  # For parameterized tests
     'rest_framework',  # If using Django REST Framework
     #'rest_framework.permissions.IsAuthenticated',  # If using DRF permissions
@@ -86,6 +87,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'chats.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
