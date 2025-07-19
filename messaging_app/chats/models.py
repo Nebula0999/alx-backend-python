@@ -5,6 +5,9 @@ import uuid
 class User(AbstractUser):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
+    first_name = models.CharField(max_length=30, null=True, blank=True)
+    last_name = models.CharField(max_length=30, null=True, blank=True)
+    password = models.CharField(max_length=128, null=False)
     ROLE_CHOICES = [
         ('guest', 'Guest'),
         ('host', 'Host'),
