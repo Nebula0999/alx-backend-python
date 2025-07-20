@@ -88,9 +88,9 @@ def test_has_license(self, repo, license_key, expected):
 
 class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Integration test for GithubOrgClient.public_repos"""
-@classmethod
-@parameterized_class
-def setUpClass(cls):
+        @classmethod
+        @parameterized_class
+        def setUpClass(cls):
             """Start patcher and configure fixture-based side effects"""
             cls.get_patcher = patch("requests.get")
             mock_get = cls.get_patcher.start()
@@ -102,9 +102,9 @@ def setUpClass(cls):
                 Mock(**{"json.return_value": cls.repos_payload}),
             ]
 
-@classmethod
-@parameterized_class
-def tearDownClass(cls):
+        @classmethod
+        @parameterized_class
+        def tearDownClass(cls):
             """Stop patcher"""
             cls.get_patcher.stop()
 
