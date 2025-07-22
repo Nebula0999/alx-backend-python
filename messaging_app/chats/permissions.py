@@ -1,5 +1,6 @@
 from .models import User, Conversation, Message, Property, Booking, Payment
-from rest_framework import authentication, permissions
+from rest_framework import authentication
+from rest_framework import permissions
 
 class IsParticipantOrReadOnly(permissions.BasePermission):
     """
