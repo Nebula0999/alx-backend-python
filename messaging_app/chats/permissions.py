@@ -2,7 +2,7 @@ from .models import User, Conversation, Message, Property, Booking, Payment
 from rest_framework import authentication
 from rest_framework import permissions
 
-class IsParticipantOrReadOnly(permissions.BasePermission):
+class IsParticipantOfConversation(permissions.BasePermission):
     """
     Custom permission to only allow participants of a conversation
     or sender/recipient of a message to access them.
