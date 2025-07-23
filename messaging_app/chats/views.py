@@ -41,5 +41,19 @@ class MessageViewSet(viewsets.ModelViewSet):
             {"message": "Message created successfully", "data": response.data},
             status=status.HTTP_201_CREATED
         )
+        return Response(
+            {"message": "Permission denied"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    def list(self, request, *args, **kwargs):
+        """
+        List messages in a conversation.
+        Only participants of the conversation can view the messages.
+        """
+        queryset = Message.objects.filter(conversation_id=request.query_params.get('conversation_id'))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # Create your views here.
