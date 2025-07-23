@@ -3,7 +3,7 @@ from django.contrib import admin
 from rest_framework import authentication, permissions
 
 
-class IsAuthenticatedOrReadOnly(permissions.BasePermission):
+class IsAuthenticated(permissions.BasePermission):
     """
     Custom permission to only allow authenticated users to perform write operations.
     """

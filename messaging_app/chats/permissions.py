@@ -13,10 +13,18 @@ class IsParticipantOfConversation(permissions.BasePermission):
 
         # For Conversation objects
         if hasattr(obj, 'participants'):
-            return user in obj.participants.all()
+            if request.method in permissions.SAFE_METHODS:
+                return user in obj.participants.all() and user.is_authenticated
+            # Only allow PUT/PATCH/DELETE for participants
+            if request.method in ['PUT', 'PATCH', 'DELETE']:
+                return user in obj.participants.all() and user.is_authenticated
 
         # For Message objects
         if hasattr(obj, 'sender'):
-            return obj.sender == user or user in obj.conversation.participants.all()
+            if request.method in permissions.SAFE_METHODS:
+                return obj.sender == user or user in obj.conversation.participants.all() and user.is_authenticated
+            # Only allow PUT/PATCH/DELETE for the sender
+            if request.method in ['PUT', 'PATCH', 'DELETE']:
+                return obj.sender == user and user.is_authenticated
 
         return False
