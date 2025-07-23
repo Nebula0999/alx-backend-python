@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'messaging_app',
+    'rest_framework_simplejwt',  # For JWT authentication
+    'django_filters',  # For filtering
     'chats',  # Add your app here
-    'parameterized',  # For parameterized tests
+    #'parameterized',  # For parameterized tests
     'rest_framework',  # If using Django REST Framework
     #'rest_framework.permissions.IsAuthenticated',  # If using DRF permissions
     #'rest_framework.authentication.SessionAuthentication',  # If using DRF authentication
@@ -57,6 +59,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'messaging_app.urls'
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'user_id',
+}
 
 TEMPLATES = [
     {

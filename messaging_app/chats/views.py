@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from requests import Response
+from rest_framework.response import Response
 from rest_framework import viewsets, status, filters
+from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
@@ -17,6 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at']
 
     def create(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminUser, IsAuthenticated]
         response = super().create(request, *args, **kwargs)
         return Response(
             {"message": "User created successfully", "data": response.data},
@@ -28,7 +30,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['participants']
-    permission_classes = [IsParticipantOfConversation]
+    #permission_classes = [IsParticipantOfConversation]
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
