@@ -6,6 +6,8 @@ from .models import User, Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
 from .auth import IsAuthenticated
+from .filters import MessageFilter
+from .pagination import PageNumberPagination
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -31,9 +33,11 @@ class ConversationViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['conversation', 'sender']
-    permission_classes = [IsParticipantOfConversation]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = MessageFilter
+    search_fields = ['message_body']
+    ordering_fields = ['sent_at']
+    pagination_class = PageNumberPagination
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -54,6 +58,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         queryset = Message.objects.filter(conversation_id=request.query_params.get('conversation_id'))
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 # Create your views here.
