@@ -1,6 +1,7 @@
 from datetime import datetime
 import logging
 from django.utils.deprecation import MiddlewareMixin
+from django.http import HttpResponseForbidden
 
 class RequestLoggingMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
@@ -22,3 +23,14 @@ class RequestLoggingMiddleware(MiddlewareMixin):
         # Log the response status code
         print(f"Response Status Code: {response.status_code}")
         return response
+
+class RestrictAccessByTimeMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        now = datetime.now().time()
+        # Restrict access outside 6PM (18:00) to 9PM (21:00)
+        if not (now >= datetime.strptime("18:00", "%H:%M").time() and now <= datetime.strptime("21:00", "%H:%M").time()):
+            return HttpResponseForbidden("Access to messaging app is restricted outside 6PM to 9PM.")
+        return self.get_response(request)
