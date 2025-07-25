@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponseForbidden
@@ -34,3 +34,48 @@ class RestrictAccessByTimeMiddleware:
         if not (now >= datetime.strptime("18:00", "%H:%M").time() and now <= datetime.strptime("21:00", "%H:%M").time()):
             return HttpResponseForbidden("Access to messaging app is restricted outside 6PM to 9PM.")
         return self.get_response(request)
+
+class OffensiveLanguageMiddleware:
+    message_limit = 5
+    time_window = timedelta(minutes=1)
+    ip_message_log = {}
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only apply limit to POST requests to message endpoints
+        if request.method == "POST" and "/messages" in request.path:
+            ip = self.get_client_ip(request)
+            now = datetime.now()
+
+            # Clean up old entries
+            self.cleanup_old_entries(ip, now)
+
+            # Initialize log for IP if not present
+            if ip not in self.ip_message_log:
+                self.ip_message_log[ip] = []
+
+            # Check limit
+            if len(self.ip_message_log[ip]) >= self.message_limit:
+                return HttpResponseForbidden("Message limit exceeded: Only 5 messages per minute allowed.")
+
+            # Log this message
+            self.ip_message_log[ip].append(now)
+
+        return self.get_response(request)
+
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    def cleanup_old_entries(self, ip, now):
+        if ip in self.ip_message_log:
+            self.ip_message_log[ip] = [
+                timestamp for timestamp in self.ip_message_log[ip]
+                if now - timestamp < self.time_window
+            ]
