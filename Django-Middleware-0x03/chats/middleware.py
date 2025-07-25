@@ -79,3 +79,18 @@ class OffensiveLanguageMiddleware:
                 timestamp for timestamp in self.ip_message_log[ip]
                 if now - timestamp < self.time_window
             ]
+
+class RolepermissionMiddleware:
+    """
+    Middleware to enforce role-based permissions.
+    Only users with role 'admin' or 'moderator' are allowed.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user = getattr(request, 'user', None)
+        # Check if user is authenticated and has the required role
+        if not (user and user.is_authenticated and getattr(user, 'role', None) in ['admin', 'moderator']):
+            return HttpResponseForbidden("You do not have permission to access this resource.")
+        return self.get_response(request)
