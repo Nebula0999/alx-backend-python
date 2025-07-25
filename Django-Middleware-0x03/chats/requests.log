@@ -1,0 +1,4 @@
+2025-07-25 14:32:10.123456 - User: Anonymous - Path: /api/token/
+2025-07-25 14:32:12.654321 - User: allan - Path: /users/
+2025-07-25 14:32:15.789012 - User: allan - Path: /conversations/123/messages/
+2025-07-25 14:32:18.345678 - User: Anonymous - Path: /admin/login/
