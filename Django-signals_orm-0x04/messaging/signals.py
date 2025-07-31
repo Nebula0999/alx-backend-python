@@ -1,6 +1,6 @@
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
-from .models import Message, MessageHistory, Notification
+from .models import User, Message, MessageHistory, Notification
 
 @receiver(pre_save, sender=Message)
 def log_message_edit(sender, instance, **kwargs):
@@ -26,6 +26,17 @@ def create_notification(sender, instance, created, **kwargs):
         print(f"Message from {instance.sender.username} to {instance.receiver.username} was updated.")
         print(f"Notification not created, message already exists for {instance.receiver.username}.")
         
+@receiver(post_delete, sender=User)
+def cleanup_user_related_data(sender, instance, **kwargs):
+    # Delete messages sent or received by the user
+    Message.objects.filter(sender=instance).delete()
+    Message.objects.filter(receiver=instance).delete()
+    # Delete notifications for the user
+    Notification.objects.filter(user=instance).delete()
+    # Delete message histories for messages sent or received by the user
+    MessageHistory.objects.filter(message__sender=instance).delete()
+    MessageHistory.objects.filter(message__receiver=instance).delete()
+
 for history in message.history.all():
     print(f"Edited at {history.edited_at}: {history.old_content}")
 
