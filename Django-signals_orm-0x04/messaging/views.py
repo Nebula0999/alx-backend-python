@@ -15,7 +15,7 @@ def display_thread(message, level=0):
         display_thread(reply_info['message'], level + 1)
     messages = Message.objects.filter(parent_message__isnull=True).select_related(
     'sender', 'receiver'
-    -).prefetch_related('replies')
+    ).prefetch_related('replies')
 
 def send_message(request):
     if request.method == "POST":
@@ -27,4 +27,13 @@ def send_message(request):
             receiver=receiver,        # The recipient user
             content=content
         )
-        # ...redirect or return response...
+        return redirect('message_list')  # Redirect to the message list after sending
+
+    return render(request, 'send_message.html')
+
+def unread_messages(request):
+    if request.user.is_authenticated:
+        unread_messages = Message.unread.for_user(request.user)
+        return render(request, 'unread_messages.html', {'unread_messages': unread_messages})
+    else:
+        return redirect('login')

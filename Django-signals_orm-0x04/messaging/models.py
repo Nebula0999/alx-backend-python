@@ -8,6 +8,10 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return self.get_queryset().filter(receiver=user, read=False).only('id', 'sender', 'content', 'timestamp')
+
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
@@ -22,6 +26,10 @@ class Message(models.Model):
         blank=True,
         on_delete=models.CASCADE
     )
+    read = models.BooleanField(default=False)  # Add this field
+
+    objects = models.Manager()  # Default manager
+    unread = UnreadMessagesManager()  # Custom manager
 
     def __str__(self):
         return f"Message from {self.sender.username} to {self.receiver.username} at {self.timestamp}"
@@ -50,4 +58,3 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-# Example: Fetch all top-level messages and their replies for a conversation
