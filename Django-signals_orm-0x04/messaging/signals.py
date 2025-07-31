@@ -37,6 +37,6 @@ def cleanup_user_related_data(sender, instance, **kwargs):
     MessageHistory.objects.filter(message__sender=instance).delete()
     MessageHistory.objects.filter(message__receiver=instance).delete()
 
-for history in message.history.all():
-    print(f"Edited at {history.edited_at}: {history.old_content}")
+#for history in message.history.all():
+   # print(f"Edited at {history.edited_at}: {history.old_content}")
 

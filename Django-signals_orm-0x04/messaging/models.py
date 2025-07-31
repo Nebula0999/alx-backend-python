@@ -51,6 +51,3 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 # Example: Fetch all top-level messages and their replies for a conversation
-messages = Message.objects.filter(parent_message__isnull=True).select_related(
-    'sender', 'receiver'
-).prefetch_related('replies')

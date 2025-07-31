@@ -13,3 +13,18 @@ def display_thread(message, level=0):
     print("  " * level + f"{message.sender.username}: {message.content}")
     for reply_info in message.get_thread():
         display_thread(reply_info['message'], level + 1)
+    messages = Message.objects.filter(parent_message__isnull=True).select_related(
+    'sender', 'receiver'
+    -).prefetch_related('replies')
+
+def send_message(request):
+    if request.method == "POST":
+        content = request.POST.get('content')
+        receiver_id = request.POST.get('receiver_id')
+        receiver = User.objects.get(id=receiver_id)
+        Message.objects.create(
+            sender=request.user,      # The logged-in user is the sender
+            receiver=receiver,        # The recipient user
+            content=content
+        )
+        # ...redirect or return response...
