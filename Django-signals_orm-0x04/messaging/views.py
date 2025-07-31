@@ -33,7 +33,7 @@ def send_message(request):
 
 def unread_messages(request):
     if request.user.is_authenticated:
-        unread_messages = Message.unread.for_user(request.user)
+        unread_messages = Message.unread.unread_for_user(request.user.only('id', 'sender', 'content', 'timestamp'))
         return render(request, 'unread_messages.html', {'unread_messages': unread_messages})
     else:
         return redirect('login')
