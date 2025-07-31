@@ -1,6 +1,9 @@
 from .models import User, Message, MessageHistory, Notification
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 15)  # Cache the view for 15 minutes
 
 def delete_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
