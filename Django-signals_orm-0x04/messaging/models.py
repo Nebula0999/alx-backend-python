@@ -13,11 +13,28 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    edited = models.BooleanField(default=False)  # Track if message has been edited
+    edited = models.BooleanField(default=False)
     edited_by = models.ForeignKey(User, related_name='edited_messages', null=True, blank=True, on_delete=models.SET_NULL)
+    parent_message = models.ForeignKey(
+        'self',
+        related_name='replies',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return f"Message from {self.sender.username} to {self.receiver.username} at {self.timestamp}"
+
+    def get_thread(self):
+        """Recursively fetch all replies to this message."""
+        thread = []
+        for reply in self.replies.all().select_related('sender', 'receiver'):
+            thread.append({
+                'message': reply,
+                'replies': reply.get_thread()
+            })
+        return thread
 
 class MessageHistory(models.Model):
     message = models.ForeignKey(Message, related_name='history', on_delete=models.CASCADE)
@@ -32,3 +49,8 @@ class Notification(models.Model):
     message = models.ForeignKey(Message, related_name='notifications', on_delete=models.CASCADE)
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+# Example: Fetch all top-level messages and their replies for a conversation
+messages = Message.objects.filter(parent_message__isnull=True).select_related(
+    'sender', 'receiver'
+).prefetch_related('replies')
