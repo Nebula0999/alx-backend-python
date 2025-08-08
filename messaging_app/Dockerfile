@@ -1,26 +1,27 @@
-# Use official Python image as base
-FROM python:3.11-slim-bullseye
+# Base image
+FROM python:3.10
 
-# Upgrade system packages to fix vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get clean
+#python:3.10
 
-# Set working directory
-WORKDIR /app
-
-# Copy requirements file
-COPY requirements.txt .
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY . .
-
-# Expose port (change if your app uses a different port)
-EXPOSE 8000
-
-# Set environment variables (optional)
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Start the application (replace with your actual start command)
+# Set work directory
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt /app/
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# Copy app code
+COPY . /app/
+
+# Expose the port Django runs on
+EXPOSE 8000
+
+# Start server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# running the server
+#docker run -p 8000:8000 messaging-api
