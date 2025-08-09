@@ -15,12 +15,12 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql   # Persist MySQL data here
 
   web:
     build: .
     container_name: messaging_app
-    command: python3 manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -31,4 +31,4 @@ services:
       - .env
 
 volumes:
-  db_data:
+  db_data:   # Named volume definition
