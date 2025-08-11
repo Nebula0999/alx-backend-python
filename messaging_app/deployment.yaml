@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-messaging-app
+  labels:
+    app: django-messaging
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django-messaging
+  template:
+    metadata:
+      labels:
+        app: django-messaging
+    spec:
+      containers:
+      - name: django-messaging
+        image: your-registry/django-messaging:latest  # Replace with your image
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://user:password@db-service:5432/dbname"  # Adjust as needed
+        - name: DEBUG
+          value: "False"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-messaging-service
+spec:
+  type: ClusterIP
+  selector:
+    app: django-messaging
+  ports:
+  - port: 80
+    targetPort: 8000
