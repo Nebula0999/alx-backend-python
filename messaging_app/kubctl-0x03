@@ -1,0 +1,37 @@
+#!/bin/bash
+# kubctl-0x03.sh
+# Rolling update to v2.0 without downtime
+
+DEPLOYMENT=django-messaging-blue
+NAMESPACE=default
+SERVICE_NAME=django-messaging-service
+PORT=8000
+
+echo "🚀 Applying updated deployment (image v2.0)..."
+kubectl apply -f blue_deployment.yaml -n $NAMESPACE
+
+echo "⏳ Monitoring rollout progress..."
+kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE &
+
+ROLL_PID=$!
+
+echo "📡 Starting downtime test..."
+kubectl port-forward svc/$SERVICE_NAME $PORT:$PORT -n $NAMESPACE >/dev/null 2>&1 &
+PF_PID=$!
+sleep 3
+
+DURATION=60
+END=$((SECONDS+DURATION))
+while [ $SECONDS -lt $END ]; do
+    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/)
+    TIMESTAMP=$(date +"%H:%M:%S")
+    echo "$TIMESTAMP - HTTP $RESPONSE"
+    sleep 1
+done
+
+kill $PF_PID
+wait $ROLL_PID
+
+echo "✅ Rolling update complete."
+echo "📋 Current pods:"
+kubectl get pods -n $NAMESPACE -o wide
