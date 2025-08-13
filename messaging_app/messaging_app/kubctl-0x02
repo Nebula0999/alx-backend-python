@@ -1,0 +1,54 @@
+#!/bin/bash
+# kubctl-0x02.sh
+# Blue-Green + Canary Deployment Script for Django app
+
+NAMESPACE=default
+BLUE_DEPLOY=django-messaging-blue
+GREEN_DEPLOY=django-messaging-green
+
+echo "🚀 Deploying BLUE version..."
+kubectl apply -f blue_deployment.yaml -n $NAMESPACE
+
+echo "🚀 Deploying GREEN version..."
+kubectl apply -f green_deployment.yaml -n $NAMESPACE
+
+echo "⏳ Waiting for GREEN pods to be ready..."
+kubectl rollout status deployment/$GREEN_DEPLOY -n $NAMESPACE
+
+echo "🔍 Checking logs for GREEN version..."
+GREEN_POD=$(kubectl get pods -n $NAMESPACE -l app=django-messaging,version=green -o jsonpath="{.items[0].metadata.name}")
+kubectl logs $GREEN_POD -n $NAMESPACE
+
+echo "📌 Starting Canary rollout..."
+STEPS=( "3 1" "2 2" "1 3" "0 4" )
+
+for step in "${STEPS[@]}"; do
+    BLUE_COUNT=$(echo $step | cut -d' ' -f1)
+    GREEN_COUNT=$(echo $step | cut -d' ' -f2)
+
+    echo "⚙️ Scaling BLUE to $BLUE_COUNT and GREEN to $GREEN_COUNT..."
+    kubectl scale deployment/$BLUE_DEPLOY --replicas=$BLUE_COUNT -n $NAMESPACE
+    kubectl scale deployment/$GREEN_DEPLOY --replicas=$GREEN_COUNT -n $NAMESPACE
+
+    echo "⏳ Waiting for pods to stabilize..."
+    sleep 20
+
+    echo "📋 Current pod distribution:"
+    kubectl get pods -n $NAMESPACE -o wide
+
+    echo "🚀 Running test traffic against service..."
+    kubectl port-forward svc/django-messaging-service 8000:8000 -n $NAMESPACE &
+    PF_PID=$!
+    sleep 5
+    curl -s http://localhost:8000/ | head -n 5
+    kill $PF_PID
+
+    echo "❓ Continue to next step? (y/n)"
+    read CONT
+    if [ "$CONT" != "y" ]; then
+        echo "⏹ Canary rollout stopped."
+        exit 0
+    fi
+done
+
+echo "✅ Canary rollout completed. GREEN version is now live."
