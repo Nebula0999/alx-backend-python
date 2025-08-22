@@ -9,14 +9,33 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    git branch: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/alx-backend-python.git',
-                        credentialsId: 'your-credentials-id'
-                    ]]
-                ])
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: '*/main']],
+                userRemoteConfigs: [[
+                url: 'https://github.com/alx-backend-python.git',
+                credentialsId: 'your-credentials-id'
+                ]]
+            ])
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+            script {
+                dockerImage = docker.build("your-dockerhub-username/messaging_app:${env.BUILD_NUMBER}")
+            }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+            withDockerRegistry([
+                credentialsId: 'your-dockerhub-credentials-id',
+                url: 'https://index.docker.io/v1/'
+            ]) {
+                script {
+                dockerImage.push()
+                }
+            }
             }
         }
         stage('Set up Python') {
