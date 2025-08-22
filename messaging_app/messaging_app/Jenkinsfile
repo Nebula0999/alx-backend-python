@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_VERSION = '3.10'
+        VENV_DIR = 'venv'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Set up Python') {
+            steps {
+                sh "python -m venv ${VENV_DIR}"
+                sh ". ${VENV_DIR}/Scripts/activate && pip install --upgrade pip"
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh ". ${VENV_DIR}/Scripts/activate && pip install -r requirements.txt"
+            }
+        }
+        stage('Lint') {
+            steps {
+                sh ". ${VENV_DIR}/Scripts/activate && pip install flake8 && flake8 messaging_app/"
+            }
+        }
+        stage('Test') {
+            steps {
+                sh ". ${VENV_DIR}/Scripts/activate && pip install pytest && pytest messaging_app/tests/"
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
