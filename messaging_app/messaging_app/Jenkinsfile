@@ -11,7 +11,7 @@ pipeline {
             steps {
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '*/main']],
+                    git branch: [[name: '*/main']],
                     userRemoteConfigs: [[
                         url: 'https://github.com/alx-backend-python.git',
                         credentialsId: 'your-credentials-id'
@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Install Dependencies') {
             steps {
-                sh ". ${VENV_DIR}/Scripts/activate && pip3 install -r requirements.txt"
+                sh ". ${VENV_DIR}/Scripts/activate && pip3 install -r messaging_app/requirements.txt"
             }
         }
         stage('Lint') {
